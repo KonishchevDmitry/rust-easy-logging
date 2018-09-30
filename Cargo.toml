@@ -1,0 +1,20 @@
+[package]
+name = "easy-logging"
+version = "0.1.0"
+authors = ["Dmitry Konishchev <konishchev@gmail.com>"]
+
+description = "An easy way to get logging working in your CLI tool"
+repository = "https://github.com/KonishchevDmitry/rust-easy-logging"
+license = "Unlicense"
+readme = "README.md"
+
+keywords = ["debugging", "development", "logging"]
+categories = ["command-line-interface", "development-tools::debugging"]
+
+[dependencies]
+ansi_term = "0.11"
+atty = "0.2"
+chrono = "0.4"
+fern = "0.5"
+lazy_static = "0.1"
+log = "0.4"
