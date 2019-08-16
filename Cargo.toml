@@ -1,6 +1,6 @@
 [package]
 name = "easy-logging"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Dmitry Konishchev <konishchev@gmail.com>"]
 
 description = "An easy way to get logging working in your CLI tool"
@@ -12,9 +12,9 @@ keywords = ["debugging", "development", "logging"]
 categories = ["command-line-interface", "development-tools::debugging"]
 
 [dependencies]
-ansi_term = "0.11"
+ansi_term = "0.12"
 atty = "0.2"
 chrono = "0.4"
 fern = "0.5"
-lazy_static = "0.1"
+lazy_static = "1.3"
 log = "0.4"
