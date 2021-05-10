@@ -48,6 +48,10 @@ impl Drop for GlobalContext {
 }
 
 pub fn init(module_name: &'static str, level: Level) -> Result<(), SetLoggerError> {
+    builder(module_name, level).apply()
+}
+
+pub fn builder(module_name: &'static str, level: Level) -> Dispatch {
     let debug_mode = level >= Level::Debug;
 
     let stdout_dispatcher =
@@ -69,7 +73,6 @@ pub fn init(module_name: &'static str, level: Level) -> Result<(), SetLoggerErro
         .level_for(module_name, level.to_level_filter())
         .chain(stdout_dispatcher)
         .chain(stderr_dispatcher)
-        .apply()
 }
 
 fn configure_formatter(dispatcher: Dispatch, debug_mode: bool, colored_output: bool) -> Dispatch {
