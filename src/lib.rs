@@ -1,16 +1,10 @@
-extern crate ansi_term;
-extern crate atty;
-extern crate chrono;
-extern crate fern;
-#[macro_use] extern crate lazy_static;
-extern crate log;
-
 use std::fmt;
 use std::io::{self, Write};
 use std::sync::Mutex;
 
 use ansi_term::Color;
 use fern::{Dispatch, FormatCallback};
+use lazy_static::lazy_static;
 use log::{Level, LevelFilter, SetLoggerError};
 
 lazy_static! {
@@ -37,7 +31,7 @@ impl GlobalContext {
     }
 
     fn get() -> String {
-        GLOBAL_CONTEXT.lock().unwrap().as_ref().map(Clone::clone).unwrap_or_else(String::new)
+        GLOBAL_CONTEXT.lock().unwrap().as_ref().map(Clone::clone).unwrap_or_default()
     }
 }
 

@@ -2,6 +2,7 @@
 name = "easy-logging"
 version = "0.1.2"
 authors = ["Dmitry Konishchev <konishchev@gmail.com>"]
+edition = "2021"
 
 description = "An easy way to get logging working in your CLI tool"
 repository = "https://github.com/KonishchevDmitry/rust-easy-logging"
