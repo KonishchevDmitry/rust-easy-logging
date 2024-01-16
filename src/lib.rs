@@ -7,6 +7,9 @@ use fern::{Dispatch, FormatCallback};
 use lazy_static::lazy_static;
 use log::{Level, LevelFilter, SetLoggerError};
 
+pub use fern;
+pub use log;
+
 lazy_static! {
     static ref GLOBAL_CONTEXT: Mutex<Option<String>> = Mutex::new(None);
     static ref OUTPUT_MUTEX: Mutex<()> = Mutex::new(());
