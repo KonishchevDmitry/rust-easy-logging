@@ -17,11 +17,10 @@ easy-logging = "*"
 #### Example:
 
 ```rust
-extern crate easy_logging;
-#[macro_use] extern crate log;
+use log::{Level, debug, info};
 
 fn main() {
-    easy_logging::init(module_path!(), log::Level::Info).unwrap();
+    easy_logging::init(module_path!(), Level::Info).unwrap();
     debug!("Test debug message.");
     info!("Test info message.");
 }
