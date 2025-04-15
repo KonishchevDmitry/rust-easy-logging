@@ -14,15 +14,19 @@ pub use log;
 pub use crate::context::GlobalContext;
 
 pub struct LoggingConfig {
-    module_name: &'static str,
-    level: Level,
+    minimal: bool,
+    modules: Vec<ModuleConfig>,
     get_level_name: fn (level: Level) -> &'static str,
 }
 
 impl LoggingConfig {
-    pub fn new(module_name: &'static str, level: Level) -> Self {
+    pub fn new(main_module_name: &'static str, level: Level) -> Self {
         LoggingConfig {
-            module_name, level,
+            minimal: false,
+            modules: vec![ModuleConfig {
+                name: main_module_name,
+                level,
+            }],
             get_level_name: |level| {
                 match level {
                     Level::Error => "E: ",
@@ -35,15 +39,18 @@ impl LoggingConfig {
         }
     }
 
-    pub fn minimal(mut self) -> Self {
-        if self.level < Level::Debug {
-            self.get_level_name = |_: Level| "";
-        }
+    pub fn level_for(mut self, name: &'static str, level: Level) -> Self {
+        self.modules.push(ModuleConfig {name, level});
         self
     }
 
     pub fn level_names(mut self, get: fn (level: Level) -> &'static str) -> Self {
         self.get_level_name = get;
+        self
+    }
+
+    pub fn minimal(mut self) -> Self {
+        self.minimal = true;
         self
     }
 
@@ -58,15 +65,21 @@ impl LoggingConfig {
             .filter(|metadata| metadata.level() < Level::Info)
             .chain(io::stderr());
 
-        Dispatch::new()
-            .level(if self.level >= Level::Debug {
+        let base_level = self.modules.first().unwrap().level;
+        let mut dispatch = Dispatch::new()
+            .level(if base_level >= Level::Debug {
                 LevelFilter::Warn
             } else {
                 LevelFilter::Off
             })
-            .level_for(self.module_name, self.level.to_level_filter())
             .chain(stdout_dispatcher)
-            .chain(stderr_dispatcher)
+            .chain(stderr_dispatcher);
+
+        for module in self.modules {
+            dispatch = dispatch.level_for(module.name, module.level.to_level_filter());
+        }
+
+        dispatch
     }
 
     pub fn build(self) -> Result<(), SetLoggerError> {
@@ -74,14 +87,18 @@ impl LoggingConfig {
     }
 
     fn configure_formatter(&self, dispatcher: Dispatch, colored_output: bool) -> Dispatch {
-        let max_level = self.level;
-        let get_level_name = self.get_level_name;
+        let base_level = self.modules.first().unwrap().level;
 
-        if self.level < Level::Debug {
+        let mut get_level_name = self.get_level_name;
+        if self.minimal && base_level < Level::Debug {
+            get_level_name = |_: Level| "";
+        }
+
+        if base_level < Level::Debug {
             dispatcher.format(move |out, message, record| {
                 let level = record.level();
                 let level_name = get_level_name(level);
-                let context = GlobalContext::get(max_level);
+                let context = GlobalContext::get(base_level);
 
                 if colored_output {
                     let color = get_level_color(level);
@@ -98,7 +115,7 @@ impl LoggingConfig {
                 let time = chrono::Local::now().format("[%T%.3f]");
                 let level = record.level();
                 let level_name = get_level_name(level);
-                let context = GlobalContext::get(max_level);
+                let context = GlobalContext::get(base_level);
 
                 let file = if let (Some(mut file), Some(line)) = (record.file(), record.line()) {
                     let mut file_width = 10;
@@ -139,8 +156,13 @@ impl LoggingConfig {
     }
 }
 
-pub fn init(module_name: &'static str, level: Level) -> Result<(), SetLoggerError> {
-    LoggingConfig::new(module_name, level).build()
+pub fn init(main_module_name: &'static str, level: Level) -> Result<(), SetLoggerError> {
+    LoggingConfig::new(main_module_name, level).build()
+}
+
+struct ModuleConfig {
+    name: &'static str,
+    level: Level,
 }
 
 fn get_level_color(level: Level) -> Color {
