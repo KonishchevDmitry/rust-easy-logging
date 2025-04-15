@@ -16,6 +16,6 @@ categories = ["command-line-interface", "development-tools::debugging"]
 ansi_term = "0.12"
 atty = "0.2"
 chrono = "0.4"
-fern = "0.6"
+fern = "0.7"
 lazy_static = "1.5"
 log = "0.4"
